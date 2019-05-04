@@ -142,6 +142,15 @@ def reset_webprofileusername(username):
     except requests.exceptions.RequestException as e:
         print("Something went wrong. Could not delete webprofile username:", e)
 
+def get_person_json(id):
+    """ Return person json dict for the given id"""
+    resp = get_person(id)
+    try:
+        return resp['results']
+    except TypeError:
+        print("Warning, empty request")
+        return None
+
 def get_person(id):
     '''
     Gets a user's profile via their id
