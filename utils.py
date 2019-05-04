@@ -1,5 +1,7 @@
 import requests
 import warnings
+import io
+import PIL
 
 def get_photo_url(photo, size=None):
     """Returns url string corresponding to the json photo object.
@@ -16,7 +18,7 @@ def get_photo_url(photo, size=None):
         raise ValueError("Not a valid preprocessed image size: %d" % size)
     preproc = photo['processedFiles'][SIZES[size]]
     # assert preproc['height'] == size
-    return preproc
+    return preproc['url']
 
 def get_all_photo_urls(person, size=None):
     """ Return list of all photos urls in json object person.
@@ -33,3 +35,11 @@ def save_image_from_url(image_url, fname):
     with open(fname + "." + extension, 'wb') as f:
         f.write(dat.content)
     return dat.status_code
+
+def PIL_from_url(image_url):
+    """ Return PIL Image from the given url."""
+    r = requests.get(image_url)
+    if not r.ok:
+        warnings.warn("Image retrieval from %s failed"%image_url)
+        return None
+    return PIL.Image.open(io.BytesIO(r.content))
