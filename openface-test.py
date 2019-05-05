@@ -5,6 +5,7 @@ import itertools
 import cv2
 import argparse
 import openface  
+import face_utils
 
 # !/usr/bin/env python2
 #
@@ -50,45 +51,6 @@ if args.verbose:
     print("Loading the dlib and OpenFace models took {} seconds.".format(
         time.time() - start))
 
-
-def getRep(imgPath):
-    """Return representation of face in the specified path"""
-    if args.verbose:
-        print("Processing {}.".format(imgPath))
-    bgrImg = cv2.imread(imgPath)
-    if bgrImg is None:
-        raise Exception("Unable to load image: {}".format(imgPath))
-    rgbImg = cv2.cvtColor(bgrImg, cv2.COLOR_BGR2RGB)
-
-    if args.verbose:
-        print("  + Original size: {}".format(rgbImg.shape))
-
-    start = time.time()
-    bb = align.getLargestFaceBoundingBox(rgbImg)
-    if bb is None:
-        raise Exception("Unable to find a face: {}".format(imgPath))
-    if args.verbose:
-        print("  + Face detection took {} seconds.".format(time.time() - start))
-
-    start = time.time()
-    alignedFace = align.align(args.imgDim, rgbImg, bb,
-                              landmarkIndices=openface.AlignDlib.OUTER_EYES_AND_NOSE)
-    if alignedFace is None:
-        raise Exception("Unable to align image: {}".format(imgPath))
-    if args.verbose:
-        print("  + Face alignment took {} seconds.".format(time.time() - start))
-
-    start = time.time()
-    rep = net.forward(alignedFace)
-    if args.verbose:
-        print("  + OpenFace forward pass took {} seconds.".format(time.time() - start))
-    
-    return rep, bb
-
-rep, boundingbox = getRep(args.imgs[0])
-
-# for (img1, img2) in itertools.combinations(args.imgs, 2):
-#     d = getRep(img1) - getRep(img2)
-#     print("Comparing {} with {}.".format(img1, img2))
-#     print(
-#         "  + Squared l2 distance between representations: {:0.3f}".format(np.dot(d, d)))
+bgrIm = face_utils.getBGRArray(args.imgs[0])
+faces, boxes= face_utils.get_all_aligned_faces(bgrIm, align)
+cv2.imwrite("annotated_0.png", faces[0])

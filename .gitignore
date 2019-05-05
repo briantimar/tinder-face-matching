@@ -8,3 +8,5 @@ find.py
 *.egg-info
 test_images/
 *checkpoint.ipynb
+*.png 
+*.jpg
