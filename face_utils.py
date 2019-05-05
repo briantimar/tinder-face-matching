@@ -48,43 +48,21 @@ def get_all_aligned_faces(image, align, imgDim=96):
         aligned_faces.append(alignedFace)
     return aligned_faces, bboxes
 
+def pull_boxes_and_reps(image, align, net, imgDim=96):
+    """ Given an RGB image, return bounding boxes and reps for all faces.
+    image: numpy image in RGB format.
+    align: an aligndlib object
+    imgDim: linear image size to use for aligned images.
+    net: openface interface to the torch neural net
 
+    Returns: a list, holding bounding_box, rep pairs in dictionaries 
+    for each face found.
+    """
 
+    newfaces = []
+    aligned_faces, bboxes = get_all_aligned_faces(image, align, imgDim=imgDim)
+    for i in range(len(aligned_faces)):
+        newfaces.append(dict(box=bboxes[i],
+                            rep=net.forward(aligned_faces[i])))
+    return newfaces
 
-# def getRep(imgPath):
-#     """Return representation of face in the specified path"""
-#     if args.verbose:
-#         print("Processing {}.".format(imgPath))
-#     #loads image from path into numpy uint array
-#     bgrImg = cv2.imread(imgPath)
-#     if bgrImg is None:
-#         raise Exception("Unable to load image: {}".format(imgPath))
-#     #flips the channel order (I guess this is necessary by default?)
-#     rgbImg = cv2.cvtColor(bgrImg, cv2.COLOR_BGR2RGB)
-
-#     if args.verbose:
-#         print("  + Original size: {}".format(rgbImg.shape))
-
-#     start = time.time()
-#     # a dlib rectangle object bounding the face
-#     bb = align.getLargestFaceBoundingBox(rgbImg)
-#     if bb is None:
-#         raise Exception("Unable to find a face: {}".format(imgPath))
-#     if args.verbose:
-#         print("  + Face detection took {} seconds.".format(time.time() - start))
-
-#     start = time.time()
-#     #numpy array holding the aligned face
-#     alignedFace = align.align(args.imgDim, rgbImg, bb,
-#                               landmarkIndices=openface.AlignDlib.OUTER_EYES_AND_NOSE)
-#     if alignedFace is None:
-#         raise Exception("Unable to align image: {}".format(imgPath))
-#     if args.verbose:
-#         print("  + Face alignment took {} seconds.".format(time.time() - start))
-
-#     start = time.time()
-#     rep = net.forward(alignedFace)
-#     if args.verbose:
-#         print("  + OpenFace forward pass took {} seconds.".format(time.time() - start))
-
-#     return rep, bb, alignedFace

@@ -52,5 +52,7 @@ if args.verbose:
         time.time() - start))
 
 bgrIm = face_utils.getBGRArray(args.imgs[0])
-faces, boxes= face_utils.get_all_aligned_faces(bgrIm, align)
-cv2.imwrite("annotated_0.png", faces[0])
+rgbIm = cv2.cvtColor(bgrIm, cv2.COLOR_BGR2RGB)
+boxes_and_reps = face_utils.pull_boxes_and_reps(rgbIm, align, net)
+# faces, boxes= face_utils.get_all_aligned_faces(bgrIm, align)
+# cv2.imwrite("annotated_0.png", faces[0])
